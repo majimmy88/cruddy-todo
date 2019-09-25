@@ -3,7 +3,7 @@ const path = require('path');
 const _ = require('underscore');
 const counter = require('./counter');
 var Promise = require('bluebird');
-const promisefs = Promise.promisifyAll(fs);
+const promisefs = Promise.promisifyAll(fs); //turns all fs into promises
 
 var items = {};
 var todoList = [];
@@ -27,13 +27,15 @@ exports.create = (text, callback) => {
 };
 
 exports.readAll = (callback) => {
-  promisefs.readdirAsync(exports.dataDir)
+  promisefs.readdirAsync(exports.dataDir) // reads all of the files in the data dir
     .then((files) => {
-      var todoList = files.map((file) => {
-        var fileName = file.replace('.txt', '');
+      var todoList = files.map((file) => { //creates a new array
+        var fileName = file.replace('.txt', ''); //removes the .txt from each file
         return promisefs.readFileAsync(path.join(exports.dataDir, `${fileName}.txt`), 'utf-8')
           .then((fileData) => {
+            //returns a retrieval of the file data
             return ({id: fileName, text: fileData});
+            //replaces the value of id with fileName and text with fileData
           });
       });
       Promise.all(todoList).then((todoList) => {
